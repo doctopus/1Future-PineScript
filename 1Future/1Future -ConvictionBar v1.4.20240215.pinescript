@@ -1,5 +1,5 @@
 //@version=5
-indicator("1Future: Conviction Table", overlay=true)
+indicator("1F: ConvictionScale", overlay=true)
 
 // User Inputs
 fast_conviction_ema = input.int(13, 'Fast Conviction EMA Length')
