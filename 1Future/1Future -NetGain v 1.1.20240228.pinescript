@@ -1,6 +1,6 @@
 // Shows Live Profit/Loss of Futures
 // Copyleft OnePro
-// V1.6.20240228
+// V1.6.20240101
 
 //@version=5
 indicator("1Future: Net Gain", overlay=true)
