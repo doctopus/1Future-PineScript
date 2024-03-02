@@ -1,16 +1,54 @@
 // Shows Live Profit/Loss of Futures
 // Copyleft OnePro
-// V1.5.20240222
+// V1.1.20240228
 
 //@version=5
 indicator("1Future: Net Gain", overlay=true)
 
 // Input parameters
+selected_option = input.string("NIFTY", "Trading Future:", options=["NIFTY", "ES", "ETH"], inline = "Trade")
+isLong = input.string("Long", title="Position:", options=["Long", "Short"],inline = "Trade")
 
-// Future Settings -Individual
-//qty_per_set = input.float(5, "Quantity per Set", minval=0, step=0.1, group="Future Settings")
-//fee = input.float(5.24, "Fees for a Set", minval=0, step=0.1, group="Future Settings")
-//Future Setting -Groups
+entry_price1 = input.float(defval = 0.0, title = "Entry Price", inline = "Price")
+entry_price2 = input.float(defval = 0.0, title = "", inline = "Price")
+entry_price3 = input.float(defval = 0.0, title = "", inline = "Price")
+// num_sets = input.int(defval =1, title = "Traded Sets", minval =1, maxval =100, step =1)
+
+// Initialize entry_price and num_sets variables
+// var float entry_price = 0.0
+float sum_sets = 0.0
+int num_sets = 0
+
+
+// Calculate num_sets
+if entry_price1 != 0
+    num_sets := num_sets + 1
+    sum_sets := sum_sets + entry_price1
+if entry_price2 != 0
+    num_sets := num_sets + 1
+    sum_sets := sum_sets + entry_price2
+if entry_price3 != 0
+    num_sets := num_sets + 1
+    sum_sets := sum_sets + entry_price3
+
+// Calculate average entry_price
+float entry_price = na
+if (num_sets > 0)
+    entry_price := sum_sets / num_sets
+
+// Display the values
+// label.new(x=bar_index, y=entry_price, text=str.tostring(entry_price) + "\nNum Sets: " + str.tostring(num_sets) + "\nSum Sets: " + str.tostring(sum_sets), style=label.style_label_down, color=color.blue)
+
+
+// Style inputs for BuyPriceLine
+labelSizeOption = input.string("Normal", title="Label Size", options=["Tiny", "Small", "Normal", "Large", "Huge"], group="Style", inline = "Label")
+gainLineColor = input(color.new(color.green, 0), title="Gain Line Color", group="Style", inline = "Label")
+lossLineColor = input(color.new(color.red, 0), title="Loss Line Color", group="Style", inline = "Label")
+
+lineWidth = input.int(defval = 2, title="Line Width", minval=1, group="Style", inline = "Line")
+//lossLineWidth = input.int(2, title="Loss Line Width", minval=1, group="Style", inline = "Line")
+bars_behind_current = input(0, title="Length on Left", group="Style", inline = "Line")
+
 qty_per_set_ES = 5
 fee_ES = 5.24
 
@@ -19,9 +57,6 @@ fee_NIFTY = 260
 
 qty_per_set_ETH = 0.1
 fee_ETH = 0.2
-
-selected_option = input.string("NIFTY", "Trading Future", options=["NIFTY", "ES", "ETH"])
-
 qty_per_set = selected_option == "NIFTY" ? qty_per_set_NIFTY :
               selected_option == "ES" ? qty_per_set_ES :
               qty_per_set_ETH
@@ -29,19 +64,6 @@ qty_per_set = selected_option == "NIFTY" ? qty_per_set_NIFTY :
 fee = selected_option == "NIFTY" ? fee_NIFTY :
       selected_option == "ES" ? fee_ES :
       fee_ETH
-
-entry_price = input(defval = 5000.00, title = "Entry Price")
-num_sets = input.int(defval =1, title = "Traded Sets", minval =1  , maxval =100  , step =1)
-isLong = input.string("Long", title="Position", options=["Long", "Short"])
-
-// Style inputs for BuyPriceLine
-labelSizeOption = input.string("Normal", title="Net Gain Label Size", options=["Tiny", "Small", "Normal", "Large", "Huge"], group="Style")
-bars_behind_current = input(0, title="Line Length on Left", group="Style")
-
-gainLineColor = input(color.new(color.green, 0), title="Gain Line Color", group="Style")
-gainLineWidth = input.int(2, title="Gain Line Width", minval=1, group="Style")
-lossLineColor = input(color.new(color.red, 0), title="Loss Line Color", group="Style")
-lossLineWidth = input.int(2, title="Loss Line Width", minval=1, group="Style")
 
 // Map Selected Label Size to Predefined Sizes
 labelSize = labelSizeOption == "Tiny" ? size.tiny :
@@ -81,7 +103,7 @@ if barstate.islast
          y1=entry_price,
          x2=bar_index+1,
          y2=entry_price,
-         width=current_profit_loss > 0 ? gainLineWidth : lossLineWidth,
+         width=current_profit_loss > 0 ? lineWidth : 0,
          color=current_profit_loss > 0 ? gainLineColor : lossLineColor,
          extend=extend.right)
 
