@@ -1,30 +1,28 @@
+// This Pine Script™ code is subject to the terms of the Mozilla Public License 2.0 at https://mozilla.org/MPL/2.0/
+// © Oneome
 
 //@version=5
-indicator("1Future: ConvictionBar", overlay=true)
+indicator("1Future: ConvictionBar -Saty", overlay=true)
 
 // User inputs
-themeInput = input.string(defval = "Light", title = "Theme:", options = ["Dark", "Light"], inline = "Global")
+themeInput = input.string(defval = "Dark", title = "Theme:", options = ["Dark", "Light"], inline = "Global")
 sizeInput = input.string(defval = "Auto", title = "Widget Size:", options = ["Auto", "Tiny", "Small", "Normal", "Large"], inline = "Global")
 tablePositionInput = input.string("Top-Right", title="Position:", options=["Top-Left", "Top-Right", "Bottom-Left", "Bottom-Right", "Middle-Left", "Middle-Right"], inline = "Table")
 orientationInput = input.string(defval = 'Horizontal', title = 'Orientation:', options = ['Horizontal', 'Vertical'], inline = "Table")
 
-show13_48Input = input.bool(defval = true, title = "Saty(13-48)", inline = "Convictions")
-show05_12Input = input.bool(defval = false, title = "Ripster(05-12)", inline = "Convictions")
-show34_50Input = input.bool(defval = false, title = "Ripster(34-50)", inline = "Convictions")
-
-tf15sInput = input.bool(false, title="15s", group = "Timeframes", inline = "TFL")
+tf15sInput = input.bool(true, title="15s", group = "Timeframes", inline = "TFL")
 tf30sInput = input.bool(true, title="30s", group = "Timeframes", inline = "TFL")
 tf1mInput = input.bool(true, title="1m", group = "Timeframes", inline = "TFL")
 tf2mInput = input.bool(true, title="2m", group = "Timeframes", inline = "TFL")
 tf3mInput = input.bool(true, title="3m", group = "Timeframes", inline = "TFL")
 tf4mInput = input.bool(true, title="4m", group = "Timeframes", inline = "TFL")
 tf5mInput = input.bool(true, title="5m", group = "Timeframes", inline = "TFL")
-tf6mInput = input.bool(true, title="6m", group = "Timeframes", inline = "TFL")
-tf7mInput = input.bool(true, title="7m", group = "Timeframes", inline = "TFL")
-tf8mInput = input.bool(true, title="8m", group = "Timeframes", inline = "TFL")
-tf9mInput = input.bool(true, title="9m", group = "Timeframes", inline = "TFH")
-tf10mInput = input.bool(true, title="10m", group = "Timeframes", inline = "TFH")
-tf11mInput = input.bool(true, title="11m", group = "Timeframes", inline = "TFH")
+tf6mInput = input.bool(true, title="6m", group = "Timeframes", inline = "TFM")
+tf7mInput = input.bool(true, title="7m", group = "Timeframes", inline = "TFM")
+tf8mInput = input.bool(true, title="8m", group = "Timeframes", inline = "TFM")
+tf9mInput = input.bool(true, title="9m", group = "Timeframes", inline = "TFM")
+tf10mInput = input.bool(true, title="10m", group = "Timeframes", inline = "TFM")
+tf11mInput = input.bool(true, title="11m", group = "Timeframes", inline = "TFM")
 tf13mInput = input.bool(true, title="13m", group = "Timeframes", inline = "TFH")
 tf15mInput = input.bool(true, title="15m", group = "Timeframes", inline = "TFH")
 tf20mInput = input.bool(true, title="20m", group = "Timeframes", inline = "TFH")
@@ -110,16 +108,7 @@ if (array.size(timeframes) == 0)
     if (tf1dInput)
         array.push(timeframes, "1D")
 //}
-// Initialize an array for timeframes
-var string[] convictions = array.new_string()
-if (array.size(convictions) == 0)
-    if (show13_48Input)
-        array.push(convictions, "Saty(13-48)")
-    if (show05_12Input)
-        array.push(convictions, "Ripster(05-12)")
-    if (show34_50Input)
-        array.push(convictions, "Ripster(34-50)")
-//}
+
 // Function to calculate Conviction based on fast and slow EMA
 getConviction(src, tf) =>
     fastEma = request.security(syminfo.tickerid, tf, ta.ema(src, 13))
@@ -157,19 +146,18 @@ else
 // Initialize the simplified InfoTable based on orientation
 var table infoTable = na
 if orientationInput == 'Horizontal'
-    infoTable := table.new(tablePosition, array.size(timeframes) + 2, array.size(convictions) + 3, bgcolor = themeBg, border_width = 1)
+    infoTable := table.new(tablePosition, array.size(timeframes) + 2, 2, bgcolor = themeBg, border_width = 1)
     // Place "Timeframe" and "Conviction" headers in their respective positions
     table.cell(infoTable, 0, 0, "Timeframe", text_color = themeText, text_size = textSize)
-    for i = 0 to array.size(convictions) - 1
-        table.cell(infoTable, 0, i + 1, array.get(convictions, i), text_color = themeText, text_size = textSize)
+    table.cell(infoTable, 0, 1, "Conviction", text_color = themeText, text_size = textSize)
 else
     // For vertical orientation, assume you want two columns (one for Timeframe and one for Conviction), but many rows
-    infoTable := table.new(tablePosition, array.size(convictions) + 3, array.size(timeframes) + 2, bgcolor = themeBg, border_width = 1)
+    infoTable := table.new(tablePosition, 2, array.size(timeframes) + 2, bgcolor = themeBg, border_width = 1)
     // Place "Timeframe" and "Conviction" headers in their respective positions
     table.cell(infoTable, 0, 0, "TF", text_color = themeText, text_size = textSize) // Header for timeframes
-    for i = 0 to array.size(convictions) -1
-        table.cell(infoTable, i + 1, 0, array.get(convictions, i), text_color = themeText, text_size = textSize) // Header for convictions
+    table.cell(infoTable, 1, 0, "CV", text_color = themeText, text_size = textSize) // Header for convictions
 // }
+
 // Function to calculate and return column and row indices based on orientation
 calculateIndices(orientation, currentColumn, currentRow, maxColumn, maxRow) =>
     int newColumn = currentColumn
@@ -265,6 +253,15 @@ if (tf5mInput)
     [convictionBgColor_5m, convictionTextColor_5m] = getColorForConviction(convictionCondition_5m)
     table.cell(infoTable,orientationInput == 'Horizontal' ? currentColumn : 0,orientationInput == 'Horizontal' ? 0: currentRow, "5m",text_color=themeText, text_size = textSize)
     table.cell(infoTable,orientationInput == 'Horizontal' ? currentColumn : 1,orientationInput == 'Horizontal' ? 1: currentRow,convictionText_5m,bgcolor=convictionBgColor_5m, text_color=convictionTextColor_5m, text_size = textSize)
+// 6 Minute
+if (tf6mInput)
+    [column_6m, row_6m] = calculateIndices(orientationInput, currentColumn, currentRow, maxColumn, maxRow)
+    currentColumn := column_6m
+    currentRow := row_6m
+    [convictionText_6m, convictionCondition_6m] = getConviction(close, "6")
+    [convictionBgColor_6m, convictionTextColor_6m] = getColorForConviction(convictionCondition_6m)
+    table.cell(infoTable,orientationInput == 'Horizontal' ? currentColumn : 0,orientationInput == 'Horizontal' ? 0: currentRow, "6m",text_color=themeText, text_size = textSize)
+    table.cell(infoTable,orientationInput == 'Horizontal' ? currentColumn : 1,orientationInput == 'Horizontal' ? 1: currentRow,convictionText_6m, bgcolor=convictionBgColor_6m, text_color=convictionTextColor_6m, text_size = textSize)
 // 7 Minute
 if (tf7mInput)
     [column_7m, row_7m] = calculateIndices(orientationInput, currentColumn, currentRow, maxColumn, maxRow)
@@ -274,6 +271,24 @@ if (tf7mInput)
     [convictionBgColor_7m, convictionTextColor_7m] = getColorForConviction(convictionCondition_7m)
     table.cell(infoTable,orientationInput == 'Horizontal' ? currentColumn : 0,orientationInput == 'Horizontal' ? 0: currentRow, "7m",text_color=themeText, text_size = textSize)
     table.cell(infoTable,orientationInput == 'Horizontal' ? currentColumn : 1,orientationInput == 'Horizontal' ? 1: currentRow,convictionText_7m,bgcolor=convictionBgColor_7m, text_color=convictionTextColor_7m, text_size = textSize)
+// 8 Minute
+if (tf8mInput)
+    [column_8m, row_8m] = calculateIndices(orientationInput, currentColumn, currentRow, maxColumn, maxRow)
+    currentColumn := column_8m
+    currentRow := row_8m
+    [convictionText_8m, convictionCondition_8m] = getConviction(close, "8")
+    [convictionBgColor_8m, convictionTextColor_8m] = getColorForConviction(convictionCondition_8m)
+    table.cell(infoTable,orientationInput == 'Horizontal' ? currentColumn : 0,orientationInput == 'Horizontal' ? 0: currentRow, "8m",text_color=themeText, text_size = textSize)
+    table.cell(infoTable,orientationInput == 'Horizontal' ? currentColumn : 1,orientationInput == 'Horizontal' ? 1: currentRow,convictionText_8m,bgcolor=convictionBgColor_8m, text_color=convictionTextColor_8m, text_size = textSize)
+// 9 Minute
+if (tf9mInput)
+    [column_9m, row_9m] = calculateIndices(orientationInput, currentColumn, currentRow, maxColumn, maxRow)
+    currentColumn := column_9m
+    currentRow := row_9m
+    [convictionText_9m, convictionCondition_9m] = getConviction(close, "9")
+    [convictionBgColor_9m, convictionTextColor_9m] = getColorForConviction(convictionCondition_9m)
+    table.cell(infoTable,orientationInput == 'Horizontal' ? currentColumn : 0,orientationInput == 'Horizontal' ? 0: currentRow, "9m",text_color=themeText, text_size = textSize)
+    table.cell(infoTable,orientationInput == 'Horizontal' ? currentColumn : 1,orientationInput == 'Horizontal' ? 1: currentRow,convictionText_9m, bgcolor=convictionBgColor_9m, text_color=convictionTextColor_9m, text_size = textSize)
 // 10 Minute
 if (tf10mInput)
     [column_10m, row_10m] = calculateIndices(orientationInput, currentColumn, currentRow, maxColumn, maxRow)
@@ -283,6 +298,24 @@ if (tf10mInput)
     [convictionBgColor_10m, convictionTextColor_10m] = getColorForConviction(convictionCondition_10m)
     table.cell(infoTable,orientationInput == 'Horizontal' ? currentColumn : 0,orientationInput == 'Horizontal' ? 0: currentRow, "10m",text_color=themeText, text_size = textSize)
     table.cell(infoTable,orientationInput == 'Horizontal' ? currentColumn : 1,orientationInput == 'Horizontal' ? 1: currentRow,convictionText_10m,bgcolor=convictionBgColor_10m, text_color=convictionTextColor_10m, text_size = textSize)
+// 11 Minute
+if (tf11mInput)
+    [column_11m, row_11m] = calculateIndices(orientationInput, currentColumn, currentRow, maxColumn, maxRow)
+    currentColumn := column_11m
+    currentRow := row_11m
+    [convictionText_11m, convictionCondition_11m] = getConviction(close, "11")
+    [convictionBgColor_11m, convictionTextColor_11m] = getColorForConviction(convictionCondition_11m)
+    table.cell(infoTable,orientationInput == 'Horizontal' ? currentColumn : 0,orientationInput == 'Horizontal' ? 0: currentRow, "11m",text_color=themeText, text_size = textSize)
+    table.cell(infoTable,orientationInput == 'Horizontal' ? currentColumn : 1,orientationInput == 'Horizontal' ? 1: currentRow,convictionText_11m, bgcolor=convictionBgColor_11m, text_color=convictionTextColor_11m, text_size = textSize)
+// 13 Minute
+if (tf13mInput)
+    [column_13m, row_13m] = calculateIndices(orientationInput, currentColumn, currentRow, maxColumn, maxRow)
+    currentColumn := column_13m
+    currentRow := row_13m
+    [convictionText_13m, convictionCondition_13m] = getConviction(close, "13")
+    [convictionBgColor_13m, convictionTextColor_13m] = getColorForConviction(convictionCondition_13m)
+    table.cell(infoTable,orientationInput == 'Horizontal' ? currentColumn : 0,orientationInput == 'Horizontal' ? 0: currentRow, "13m",text_color=themeText, text_size = textSize)
+    table.cell(infoTable,orientationInput == 'Horizontal' ? currentColumn : 1,orientationInput == 'Horizontal' ? 1: currentRow, convictionText_13m, bgcolor=convictionBgColor_13m, text_color=convictionTextColor_13m, text_size = textSize)
 // 15 Minute
 if (tf15mInput)
     [column_15m, row_15m] = calculateIndices(orientationInput, currentColumn, currentRow, maxColumn, maxRow)
@@ -319,93 +352,21 @@ if (tf1hInput)
     [convictionBgColor_1h, convictionTextColor_1h] = getColorForConviction(convictionCondition_1h)
     table.cell(infoTable,orientationInput == 'Horizontal' ? currentColumn : 0,orientationInput == 'Horizontal' ? 0: currentRow, "1hr",text_color=themeText, text_size = textSize)
     table.cell(infoTable,orientationInput == 'Horizontal' ? currentColumn : 1,orientationInput == 'Horizontal' ? 1: currentRow,convictionText_1h,bgcolor=convictionBgColor_1h, text_color=convictionTextColor_1h, text_size = textSize)
-
-
-// Ripster 5-12
-// Declare variables once
-currentColumn := 0
-currentRow := 0
-maxColumn := na
-maxRow := na
-
-// Direct calls to add data to the table, corresponding to each timeframe
-currentColumn := orientationInput == 'Horizontal' ? 1 : 2 // Start at row 1 for Horizontal (for labels), row 0 for Vertical (for data)
-currentRow := orientationInput == 'Horizontal' ? 2 : 1 // Start at row 0 for Horizontal (for labels), row 1 for Vertical (for data)
-// Initialize maxColumn and maxRow based on orientation
-maxColumn := orientationInput == 'Horizontal' ? array.size(timeframes) + 1 : 4
-maxRow := orientationInput == 'Vertical' ? array.size(timeframes) + 1 : 4
-
-if (show05_12Input)
-    // 30 Second
-    if (tf30sInput)
-        [column_30s, row_30s] = calculateIndices(orientationInput, currentColumn, currentRow, maxColumn, maxRow)
-        currentColumn := column_30s
-        currentRow := row_30s
-        [convictionText_30s, convictionCondition_30s] = getConviction(close, "30S")
-        [convictionBgColor_30s, convictionTextColor_30s] = getColorForConviction(convictionCondition_30s)
-        //table.cell(infoTable,orientationInput == 'Horizontal' ? currentColumn : 0,orientationInput == 'Horizontal' ? 0: currentRow, "30s",text_color=themeText, text_size = textSize)
-        table.cell(infoTable,orientationInput == 'Horizontal' ? currentColumn : 1,orientationInput == 'Horizontal' ? 2: currentRow,convictionText_30s,bgcolor=convictionBgColor_30s, text_color=convictionTextColor_30s, text_size = textSize)
-    // 1 Minute
-    if (tf1mInput)
-        [column_1m, row_1m] = calculateIndices(orientationInput, currentColumn, currentRow, maxColumn, maxRow)
-        currentColumn := column_1m
-        currentRow := row_1m
-        [convictionText_1m, convictionCondition_1m] = getConviction(close, "1")
-        [convictionBgColor_1m, convictionTextColor_1m] = getColorForConviction(convictionCondition_1m)
-        //table.cell(infoTable,orientationInput == 'Horizontal' ? currentColumn : 0,orientationInput == 'Horizontal' ? 0: currentRow, "1m",text_color=themeText, text_size = textSize)
-        table.cell(infoTable,orientationInput == 'Horizontal' ? currentColumn : 1,orientationInput == 'Horizontal' ? 2: currentRow,convictionText_1m,bgcolor=convictionBgColor_1m,text_color=convictionTextColor_1m, text_size = textSize)
-    // 2 Minute
-    if (tf2mInput)
-        [column_2m, row_2m] = calculateIndices(orientationInput, currentColumn, currentRow, maxColumn, maxRow)
-        currentColumn := column_2m
-        currentRow := row_2m
-        [convictionText_2m, convictionCondition_2m] = getConviction(close, "2")
-        [convictionBgColor_2m, convictionTextColor_2m] = getColorForConviction(convictionCondition_2m)
-        //table.cell(infoTable,orientationInput == 'Horizontal' ? currentColumn : 0,orientationInput == 'Horizontal' ? 0: currentRow, "2m",text_color=themeText, text_size = textSize)
-        table.cell(infoTable,orientationInput == 'Horizontal' ? currentColumn : 1,orientationInput == 'Horizontal' ? 2: currentRow,convictionText_2m, bgcolor=convictionBgColor_2m, text_color=convictionTextColor_2m, text_size = textSize)
-    // 3 Minute
-
-
-// Ripster 34-50
-// Declare variables once
-currentColumn := 0
-currentRow := 0
-maxColumn := na
-maxRow := na
-
-// Direct calls to add data to the table, corresponding to each timeframe
-currentColumn := orientationInput == 'Horizontal' ? 1 : 2 // Start at row 1 for Horizontal (for labels), row 0 for Vertical (for data)
-currentRow := orientationInput == 'Horizontal' ? 3 : 1 // Start at row 0 for Horizontal (for labels), row 1 for Vertical (for data)
-// Initialize maxColumn and maxRow based on orientation
-maxColumn := orientationInput == 'Horizontal' ? array.size(timeframes) + 1 : 4
-maxRow := orientationInput == 'Vertical' ? array.size(timeframes) + 1 : 4
-
-if (show34_50Input)
-    // 30 Second
-    if (tf30sInput)
-        [column_30s, row_30s] = calculateIndices(orientationInput, currentColumn, currentRow, maxColumn, maxRow)
-        currentColumn := column_30s
-        currentRow := row_30s
-        [convictionText_30s, convictionCondition_30s] = getConviction(close, "30S")
-        [convictionBgColor_30s, convictionTextColor_30s] = getColorForConviction(convictionCondition_30s)
-        //table.cell(infoTable,orientationInput == 'Horizontal' ? currentColumn : 0,orientationInput == 'Horizontal' ? 0: currentRow, "30s",text_color=themeText, text_size = textSize)
-        table.cell(infoTable,orientationInput == 'Horizontal' ? currentColumn : 1,orientationInput == 'Horizontal' ? 3: currentRow,convictionText_30s,bgcolor=convictionBgColor_30s, text_color=convictionTextColor_30s, text_size = textSize)
-    // 1 Minute
-    if (tf1mInput)
-        [column_1m, row_1m] = calculateIndices(orientationInput, currentColumn, currentRow, maxColumn, maxRow)
-        currentColumn := column_1m
-        currentRow := row_1m
-        [convictionText_1m, convictionCondition_1m] = getConviction(close, "1")
-        [convictionBgColor_1m, convictionTextColor_1m] = getColorForConviction(convictionCondition_1m)
-        //table.cell(infoTable,orientationInput == 'Horizontal' ? currentColumn : 0,orientationInput == 'Horizontal' ? 0: currentRow, "1m",text_color=themeText, text_size = textSize)
-        table.cell(infoTable,orientationInput == 'Horizontal' ? currentColumn : 1,orientationInput == 'Horizontal' ? 3: currentRow,convictionText_1m,bgcolor=convictionBgColor_1m,text_color=convictionTextColor_1m, text_size = textSize)
-    // 2 Minute
-    if (tf2mInput)
-        [column_2m, row_2m] = calculateIndices(orientationInput, currentColumn, currentRow, maxColumn, maxRow)
-        currentColumn := column_2m
-        currentRow := row_2m
-        [convictionText_2m, convictionCondition_2m] = getConviction(close, "2")
-        [convictionBgColor_2m, convictionTextColor_2m] = getColorForConviction(convictionCondition_2m)
-        //table.cell(infoTable,orientationInput == 'Horizontal' ? currentColumn : 0,orientationInput == 'Horizontal' ? 0: currentRow, "2m",text_color=themeText, text_size = textSize)
-        table.cell(infoTable,orientationInput == 'Horizontal' ? currentColumn : 1,orientationInput == 'Horizontal' ? 3: currentRow,convictionText_2m, bgcolor=convictionBgColor_2m, text_color=convictionTextColor_2m, text_size = textSize)
-    // 3 Minute
+// 4 Hour
+if (tf4hInput)
+    [column_4h, row_4h] = calculateIndices(orientationInput, currentColumn, currentRow, maxColumn, maxRow)
+    currentColumn := column_4h
+    currentRow := row_4h
+    [convictionText_4h, convictionCondition_4h] = getConviction(close, "240")
+    [convictionBgColor_4h, convictionTextColor_4h] = getColorForConviction(convictionCondition_4h)
+    table.cell(infoTable,orientationInput == 'Horizontal' ? currentColumn : 0,orientationInput == 'Horizontal' ? 0: currentRow, "4hr",text_color=themeText, text_size = textSize)
+    table.cell(infoTable,orientationInput == 'Horizontal' ? currentColumn : 1,orientationInput == 'Horizontal' ? 1: currentRow, convictionText_4h,bgcolor=convictionBgColor_4h, text_color=convictionTextColor_4h, text_size = textSize)
+// 1 Day
+if (tf1dInput)
+    [column_1D, row_1D] = calculateIndices(orientationInput, currentColumn, currentRow, maxColumn, maxRow)
+    currentColumn := column_1D
+    currentRow := row_1D
+    [convictionText_1D, convictionCondition_1D] = getConviction(close, "1D")
+    [convictionBgColor_1D, convictionTextColor_1D] = getColorForConviction(convictionCondition_1D)
+    table.cell(infoTable,orientationInput == 'Horizontal' ? currentColumn : 0,orientationInput == 'Horizontal' ? 0: currentRow, "1D",text_color=themeText, text_size = textSize)
+    table.cell(infoTable,orientationInput == 'Horizontal' ? currentColumn : 1,orientationInput == 'Horizontal' ? 1: currentRow, convictionText_1D, bgcolor=convictionBgColor_1D, text_color=convictionTextColor_1D, text_size = textSize)
