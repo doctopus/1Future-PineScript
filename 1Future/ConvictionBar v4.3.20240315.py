@@ -123,12 +123,6 @@ if (array.size(convictions) == 0)
         array.push(convictions, "Ripster(34-50)")
 //}
 
-//getConvictionOld(src, tf) =>
-//    fastEma = request.security(syminfo.tickerid, tf, ta.ema(src, 13))
-//    slowEma = request.security(syminfo.tickerid, tf, ta.ema(src, 48))
-//    convictionText = fastEma > slowEma ? bullishTextInput : fastEma < slowEma ? bearishTextInput : "■"
-//    convictionCondition = fastEma > slowEma ? "Bullish" : fastEma < slowEma ? "Bearish" : "Neutral"
-//    [convictionText, convictionCondition]
 // Function to calculate Conviction based on fast and slow EMA
 getConviction(src, tf, convictionType) =>
     // Determine EMA periods based on the convictionType
@@ -143,25 +137,24 @@ getConviction(src, tf, convictionType) =>
     // Determine colors based on the conviction condition
     convictionBgColor = convictionCondition == "Bullish" ? bullishColorInput : convictionCondition == "Bearish" ? bearishColorInput : color.white
     convictionTextColor = convictionCondition == "Neutral" ? color.gray : color.white
-    // [convictionText, convictionCondition]
     // Return all calculated values
     [convictionText, convictionCondition, convictionBgColor, convictionTextColor]
-//}
+//
 
 // Function to determine colors for conviction
-getColorForConviction(convictionCondition) =>
-    convictionBgColor = color.white // Default background color
-    convictionTextColor = color.gray // Default text color
-    if convictionCondition == "Bullish"
-        convictionBgColor := bullishColorInput
-        convictionTextColor := color.white
-    else if convictionCondition == "Bearish"
-        convictionBgColor := bearishColorInput
-        convictionTextColor := color.white
-    else if convictionCondition == "Neutral"
-        convictionBgColor := color.white
-        convictionTextColor := color.gray
-     [convictionBgColor, convictionTextColor]
+//getColorForConviction(convictionCondition) =>
+//    convictionBgColor = color.white // Default background color
+//    convictionTextColor = color.gray // Default text color
+//    if convictionCondition == "Bullish"
+//        convictionBgColor := bullishColorInput
+//        convictionTextColor := color.white
+//    else if convictionCondition == "Bearish"
+//        convictionBgColor := bearishColorInput
+//        convictionTextColor := color.white
+//    else if convictionCondition == "Neutral"
+//        convictionBgColor := color.white
+//        convictionTextColor := color.gray
+//     [convictionBgColor, convictionTextColor]
 //}
 // Set Theme Text and Background Color
 var themeText = color.red
@@ -169,13 +162,6 @@ var themeBg = color.blue
 themeText := themeInput == "Dark" ? color.white : color.black
 themeBg := themeInput == "Dark" ? color.black : color.white
 
-//if themeInput == "Dark"
-//    themeText := color.white
-//    themeBg := color.black
-//else
-//    themeText := color.black
-//    themeBg := color.white
-//}
 // Initialize the simplified InfoTable based on orientation
 var table infoTable = na
 if orientationInput == 'Horizontal'
