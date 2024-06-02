@@ -23,20 +23,24 @@ def lambda_handler(event, context):
         body = event['body']
 
         # Construct the message for Pushover
-        #message = body.strip()  #-whitespace +.capitalize() for Sentence case
-        #message = message[0].upper() + message[1:] # CAPITALIZE first word
         message = body.strip()
         words = message.split()
         emoji_map = {
-            "buy": "🔼🥎😎",
-            "sell": "🔽🏀😡"
+            "buy": "🟢😎🟢",
+            "sell": "🔴😡🔴"
+        }
+        word_map = {
+            "buy": '<font color="#00ff00">Long</font>',
+            "sell": '<font color="#ff0000">Short</font>'
         }
 
         if words:
             # Check if the first word matches a key in the emoji_map
             if words[0].lower() in emoji_map:
-                words[0] = emoji_map[words[0].lower()]
+                title = f"{emoji_map[words[0].lower()]} {words[1] if len(words) > 1 else ''}"
+                words[0] = word_map[words[0].lower()]
             else:
+                title = f"{words[0].upper()} {words[1] if len(words) > 1 else ''}"
                 words[0] = words[0].upper()  # Capitalize the first word if not in emoji_map
 
         message = ' '.join(words)
@@ -45,7 +49,10 @@ def lambda_handler(event, context):
         data = {
             "token": PUSHOVER_API_TOKEN,
             "user": PUSHOVER_USER_KEY,
-            "message": message
+            "message": message,
+            "title": title,
+            "html": 1,
+            "ttl": 1800 # 30 Minute Notification Expiry
         }
 
         # Encode the data
