@@ -1,14 +1,14 @@
 // Sends Webhook Message Containing ATR Range
 // Copyleft OnePro
-// V1.0.20240604
+// V1.0.20240606
 // 1Future -RibbonStrategy
 
 //@version=5
 
 strategy("1Future -RibbonStrategy", overlay=true, default_qty_type=strategy.percent_of_equity, default_qty_value=100)
 
-// Settings
-fast_conv_ema_length = input(13, title='Fast Conviction EMA Length')
+// Settings changed from 13 - 48 to 8 - 48
+fast_conv_ema_length = input(8, title='Fast Conviction EMA Length')
 slow_conv_ema_length = input(48, title='Slow Conviction EMA Length')
 
 use_current_close = input(false, 'Use Current Close')
@@ -25,6 +25,7 @@ period_low = request.security(ticker, timeframe, low, gaps=barmerge.gaps_off, lo
 range_1 = period_high - period_low
 upper_1000 = previous_close + atr
 lower_1000 = previous_close - atr
+
 //alertcondition(range_1, title='ATR Range')
 plot(upper_1000, title="ATR +100", color=color.red)
 plot(period_high, title="ATR High", color=color.orange)
@@ -42,8 +43,6 @@ alert_message = "ATR:" + str.tostring(atr_range)
 // Calculate EMAs
 fast_conv_ema = ta.ema(close, fast_conv_ema_length)
 slow_conv_ema = ta.ema(close, slow_conv_ema_length)
-//fast_conv_ema = ta.ema(close, 13)
-//slow_conv_ema = ta.ema(close, 48)
 
 // Determine bullish and bearish conviction
 bullish_conviction = fast_conv_ema >= slow_conv_ema
