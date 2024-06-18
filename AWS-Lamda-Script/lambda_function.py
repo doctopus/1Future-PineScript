@@ -1,3 +1,4 @@
+#Processes TradingView Message: {{strategy.order.action}} {{ticker}} @{{interval}} ${{strategy.order.price}} #{{time}} *{{strategy.order.comment}}
 import json
 import urllib.request #From layers: requests
 import urllib.parse
@@ -22,8 +23,6 @@ logger.setLevel(logging.INFO)
 PUSHOVER_USER_KEY = os.getenv('PUSHOVER_USER_KEY')
 PUSHOVER_API_TOKEN = os.getenv('PUSHOVER_API_TOKEN')
 
-visual_emoji = "♦️"
-
 def lambda_handler(event, context):
     logger.info(f"Event received: {json.dumps(event)}")
 
@@ -34,24 +33,24 @@ def lambda_handler(event, context):
         # Construct the message for Pushover
         words = body.split()
         emoji_map = {
-            "buy": "🟢😎🟢",
-            "sell": "🔴😡🔴"
+            "buy": "😎",
+            "sell": "😡"
         }
         word_map = {
-            "buy": '<font color="#00ff00">📈</font>',
-            "sell": '<font color="#ff0000">📉</font>'
+            "buy": "📈",
+            "sell": "📉"
+        }
+        emoji_visual_map = {
+        "buy": "🟢",  # up_emoji
+        "sell": "🔴"  # down_emoji
         }
 
-        if words:
-            # Check if the first word matches a key in the emoji_map
-            if words[0].lower() in emoji_map:
-                second_word_part = words[1] if len(words) > 1 else ''
-                title = f"{emoji_map[words[0].lower()]} {second_word_part}"
-                words[0] = word_map[words[0].lower()]
-            else:
-                second_word_part = words[1] if len(words) > 1 else ''
-                title = f"{words[0].upper()} {second_word_part}"
-                words[0] = words[0].upper()  # Capitalize the first word if not in emoji_map
+        #if words:
+        # Check if the first word matches a key in the emoji_map
+            #action = words[0].lower()
+            #title = f"{emoji_map[action]} {words[1]}"
+            #words[0] = word_map[action]
+            #visual_emoji = emoji_visual_map[action]
 
         # Prepare Data for DynamoDB
         # Extract the values from the body
@@ -87,7 +86,7 @@ def lambda_handler(event, context):
             alert_time_est_timestamp = None
             alert_time_est_formatted = alert_time_str
 
-
+        # DYNAMODB CODE ##########################
         # DynamoDB: Construct the item to store in DynamoDB
         item = {
         'alert_id': {'S': context.aws_request_id},
@@ -104,7 +103,7 @@ def lambda_handler(event, context):
             Item=item
         )
 
-
+        # PUSHOVER CODE #########################
         # PushOver: Prepare the message for Pushover
         # Convert time_interval to an integer and ignore 'S'
         if 'S' in time_interval:
@@ -122,6 +121,7 @@ def lambda_handler(event, context):
         min_visual_units = 1
         max_visual_units = 5 # We can limit the number of emojis to a maximum of 5 to avoid excessive length
 
+        # Normalize the interval value to determine the number of emojis
         if min_interval <= time_interval_value <= max_interval:
             visual_units = math.ceil(
                 (time_interval_value - min_interval) / (max_interval - min_interval) * (max_visual_units - min_visual_units) + min_visual_units
@@ -131,13 +131,14 @@ def lambda_handler(event, context):
         #visual_units = min(max_visual_units, time_interval_value)
 
         # Create a visual representation of the time interval
-        time_interval_visual = visual_emoji * visual_units
+        #time_interval_visual = visual_emoji * visual_units
+        time_interval_visual = emoji_visual_map[words[0].lower()] * visual_units
 
-        message = f"{words[0]} @{time_interval} {time_interval_visual} ${alert_price} #{alert_time_est_formatted}"
+        message = f"{word_map[words[0].lower()]} @{time_interval} {time_interval_visual} ${alert_price} #{alert_time_est_formatted}"
         #message = f"{words[0]} {words[1]} @{words[2].split('@')[1]} {time_interval_visual} ${words[3].split('$')[1]} #{alert_time_est_formatted}"
         #message = f"{words[0]} {words[1]} @{time_interval} {time_interval_visual} ${alert_price} #{alert_time_est_formatted}"
 
-
+        title = f"{emoji_map[words[0].lower()]} {ticker_name}"
         #PushOver Alert Message
         url = "https://api.pushover.net/1/messages.json"
         data = {
