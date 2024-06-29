@@ -1,6 +1,6 @@
 // Shows Live Profit/Loss of Futures
-// Copyleft OnePro
-// V1.2.20240301
+// Copyleft OneFuture
+// V1.4.20240628
 
 //@version=5
 indicator("1Future: Net Gain", overlay=true)
@@ -51,8 +51,8 @@ curSymbol = selected_option == "NIFTY" ? "₹ " : "$ "
 qty_per_set_ES = 5
 fee_ES = 5.24
 
-qty_per_set_NIFTY = 50
-fee_NIFTY = 260
+qty_per_set_NIFTY = 25
+fee_NIFTY = 114
 
 qty_per_set_ETH = 0.1
 fee_ETH = 0.2
