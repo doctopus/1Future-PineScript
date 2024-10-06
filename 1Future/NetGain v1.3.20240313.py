@@ -52,7 +52,7 @@ qty_per_set_ES = 5
 fee_ES = 5.24
 
 qty_per_set_NIFTY = 25
-fee_NIFTY = 114
+fee_NIFTY = 120.36
 
 qty_per_set_ETH = 0.1
 fee_ETH = 0.2
