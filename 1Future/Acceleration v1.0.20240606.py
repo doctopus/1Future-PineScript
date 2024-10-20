@@ -1,7 +1,7 @@
 // © Oneome
 
 //@version=5
-indicator("1Future: Acceleration", overlay=true)
+indicator("1Future-Acceleration", overlay=true)
 
 // User inputs
 themeInput = input.string(defval = "Dark", title = "Theme:", options = ["Dark", "Light"], inline = "Global")

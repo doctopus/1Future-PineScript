@@ -8,7 +8,6 @@ strategy("1Future -RibbonStrategy", overlay=true)
 
 // Settings
 fast_ema_length = input(8, title='Fast EMA Length')
-pivot_ema_length = input(21, title='Pivot EMA Length')
 slow_ema_length = input(34, title='Slow EMA Length')
 fast_conv_ema_length = input(13, title='Fast Conviction EMA Length')
 slow_conv_ema_length = input(48, title='Slow Conviction EMA Length')
